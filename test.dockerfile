@@ -1,3 +1,8 @@
+# Build
+#   $ docker build -t wea-test -f test.dockerfile .
+# Run
+#   $ docker run --rm -ti -v $(pwd)/src:/home/wea/src wea-test make tests
+
 FROM ubuntu:21.10
 
 RUN apt-get update && \
