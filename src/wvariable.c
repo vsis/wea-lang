@@ -3,6 +3,22 @@
 
 #include "wvariable.h"
 
+// This function add data to a wvariable
+// the wvariable should be already created
+void wvariable_insert_data(wvariable_t *wvar, void *data) {
+  // Copy data
+  // It depends on data type
+  switch (wvar->wdata_type) {
+    case WTYPE_CHAR:
+      char *new_char = (char *) data;
+      wvar->wdata.wchar = *new_char;
+      break;
+    case WTYPE_INT:
+      int *new_int = (int *) data;
+      wvar->wdata.wint = *new_int;
+      break;
+  }
+}
 
 wvariable_t *wvariable_create(wdata_type_t data_type, char *name, void *data){
   wvariable_t *new_variable;
@@ -33,19 +49,21 @@ wvariable_t *wvariable_create(wdata_type_t data_type, char *name, void *data){
 
   // Copy data type
   new_variable->wdata_type = data_type;
-  
+
   // Copy data
-  // It depends on data type
-  switch (data_type) {
-    case WTYPE_CHAR:
-      char *new_char = (char *) data;
-      new_variable->wdata.wchar = *new_char;
-      break;
-    case WTYPE_INT:
-      int *new_int = (int *) data;
-      new_variable->wdata.wint = *new_int;
-      break;
-  }
-  
+  wvariable_insert_data(new_variable, data);
   return new_variable;
+}
+
+void wvariable_update(wvariable_t *wvar, void *data) {
+  if (wvar != NULL) { // This function does the same as wvariable_insert_data(),
+                      // but it checks for a NULL input
+    wvariable_insert_data(wvar, data);
+  }
+}
+
+void wvariable_free(wvariable_t *wvar){
+  free(wvar->name);
+  wvar->name = NULL;
+  free(wvar);
 }
