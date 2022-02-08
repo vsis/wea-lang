@@ -2,7 +2,7 @@
 SRCS := $(wildcard *.c)
 OBJS := $(SRCS:%.c=%.o)
 TEST_SRCS := $(wildcard *.test.c)
-TEST_BINS := wvariable.test
+TEST_BINS := wvariable.test wexpression.test
 
 %.test: %.o %.test.o
 	${CC} $@.o $< -o $@ -lcriterion 

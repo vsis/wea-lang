@@ -6,7 +6,8 @@
 // These are the defined data types
 typedef enum wdata_type {
   WTYPE_CHAR,
-  WTYPE_INT} wdata_type_t;
+  WTYPE_INT
+} wdata_type_t;
 
 
 // The payload of a variable
