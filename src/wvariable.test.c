@@ -44,3 +44,20 @@ Test(wvariable, should_update_an_existing_variable) {
   cr_expect(my_variable->wdata.wchar == 'z');
   wvariable_free(my_variable);
 }
+
+Test(wvariable, should_not_free_a_NULL_wvariable) {
+  wvariable_t *my_variable = NULL;
+  wvariable_free(my_variable);
+}
+
+Test(wvariable, should_not_fail_to_create_a_variable_with_NULL_name) {
+  wvariable_t *my_variable = wvariable_create(WTYPE_CHAR, NULL, NULL);
+  cr_expect(my_variable == NULL);
+  wvariable_free(my_variable);
+}
+
+Test(wvariable, should_not_fail_to_create_a_variable_with_empty_name) {
+  wvariable_t *my_variable = wvariable_create(WTYPE_CHAR, "", NULL);
+  cr_assert_str_eq(my_variable->name, "");
+  wvariable_free(my_variable);
+}

@@ -6,6 +6,9 @@
 // This function add data to a wvariable
 // the wvariable should be already created
 void wvariable_insert_data(wvariable_t *wvar, void *data) {
+  if (data == NULL) {
+    return;
+  }
   // Copy data
   // It depends on data type
   switch (wvar->wdata_type) {
@@ -23,9 +26,17 @@ void wvariable_insert_data(wvariable_t *wvar, void *data) {
 wvariable_t *wvariable_create(wdata_type_t data_type, char *name, void *data){
   wvariable_t *new_variable;
   char * new_name;
-  size_t name_length = strlen(name) + 1;
+  size_t name_length;
+
+  // Check if name is NULL
+  if (name == NULL) {
+    return NULL;
+  } else {
+    name_length = strlen(name) + 1;
+  }
 
   // Return NULL if wrong name size
+  // We allow an empty string as a valid name for anonymous variables
   if ((name_length < 1 ) || (name_length > WVAR_NAME_MAX_LENGTH )) {
     return NULL;
   }
@@ -63,7 +74,9 @@ void wvariable_update(wvariable_t *wvar, void *data) {
 }
 
 void wvariable_free(wvariable_t *wvar){
-  free(wvar->name);
-  wvar->name = NULL;
-  free(wvar);
+  if (wvar != NULL) {
+    free(wvar->name);
+    wvar->name = NULL;
+    free(wvar);
+  }
 }
