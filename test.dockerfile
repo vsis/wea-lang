@@ -15,4 +15,4 @@ USER wea
 
 WORKDIR /home/wea/src
 
-CMD make test
+CMD make tests
