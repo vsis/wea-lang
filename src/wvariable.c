@@ -6,7 +6,7 @@
 // This function add data to a wvariable
 // the wvariable should be already created
 void wvariable_insert_data(wvariable_t *wvar, void *data) {
-  if (data == NULL) {
+  if (!data) {
     return;
   }
   // Copy data
@@ -29,7 +29,7 @@ wvariable_t *wvariable_create(wdata_type_t data_type, char *name, void *data){
   size_t name_length;
 
   // Check if name is NULL
-  if (name == NULL) {
+  if (!name) {
     return NULL;
   } else {
     name_length = strlen(name) + 1;
@@ -44,11 +44,11 @@ wvariable_t *wvariable_create(wdata_type_t data_type, char *name, void *data){
   // Allocate memory
   // Free() everything and return NULL if malloc() fails
   new_variable  = (wvariable_t *) malloc(sizeof(wvariable_t));
-  if (new_variable == NULL) {
+  if (!new_variable) {
     return NULL;
   }
   new_name = (char *) malloc(sizeof(char) * name_length);
-  if (new_name == NULL){
+  if (!new_name) {
     free(new_variable);
     return NULL;
   }
@@ -67,14 +67,14 @@ wvariable_t *wvariable_create(wdata_type_t data_type, char *name, void *data){
 }
 
 void wvariable_update(wvariable_t *wvar, void *data) {
-  if (wvar != NULL) { // This function does the same as wvariable_insert_data(),
+  if (wvar) {         // This function does the same as wvariable_insert_data(),
                       // but it checks for a NULL input
     wvariable_insert_data(wvar, data);
   }
 }
 
 void wvariable_free(wvariable_t *wvar){
-  if (wvar != NULL) {
+  if (wvar) {
     free(wvar->name);
     wvar->name = NULL;
     free(wvar);
