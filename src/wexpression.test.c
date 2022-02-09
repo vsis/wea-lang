@@ -120,3 +120,9 @@ Test(wexpression, should_not_nest_twice) {
   wexpression_free(my_expression);
   wexpression_free(b_expression);
 }
+
+Test(wexpression, should_not_fail_to_create_an_expression_with_empty_name) {
+  wexpression_t *my_expression = wexpression_create(WTYPE_BUILTIN_FUNCTION, "", NULL);
+  cr_assert_str_eq(my_expression->wvar->name, "");
+  wexpression_free(my_expression);
+}
