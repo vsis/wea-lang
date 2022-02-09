@@ -5,6 +5,9 @@
 
 // These are the defined data types
 typedef enum wdata_type {
+  WTYPE_UNEVALUATED,
+  WTYPE_BUILTIN_FUNCTION,
+  WTYPE_FUNCTION,
   WTYPE_CHAR,
   WTYPE_INT
 } wdata_type_t;
