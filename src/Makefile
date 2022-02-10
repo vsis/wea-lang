@@ -1,5 +1,5 @@
-BINS := wexpression.o
-TEST_BINS := wexpression.test
+BINS := wexpression.o wdeclaration.o
+TEST_BINS := wexpression.test wdeclaration.test
 
 %.test: %.o %.test.o ${BINS}
 	${CC} ${BINS} $@.o -o $@ -lcriterion
