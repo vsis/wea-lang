@@ -1,22 +1,20 @@
 #include <stdlib.h>
+#include <string.h>
 
-#include "wvariable.h"
 #include "wexpression.h"
 
-wexpression_t *wexpression_create(wdata_type_t wdata_type, char *symbol, void *value) {
+wexpression_t *wexpression_create(wtype_t type, char *symbol) {
   if (!symbol) {
-    return NULL;
-  }
-  wvariable_t *wvar = wvariable_create(wdata_type, symbol, value);
-  if (!wvar) {
     return NULL;
   }
   wexpression_t *new_expression = (wexpression_t *) malloc(sizeof(wexpression_t));
   if (!new_expression) {
-    wvariable_free(wvar);
     return NULL;
   }
-  new_expression->wvar = wvar;
+  size_t symbol_length = strlen(symbol) + 1;
+  new_expression->token = (char *)malloc(sizeof(char) * symbol_length);
+  strncpy(new_expression->token, symbol, symbol_length);
+  new_expression->wtype = type;
   new_expression->arg_wexpression = NULL;
   new_expression->nested_wexpression = NULL;
   new_expression->wargc = 0;
@@ -46,7 +44,7 @@ void wexpression_free(wexpression_t *wexpression) {
   if (wexpression) {
     wexpression_free(wexpression->nested_wexpression);
     wexpression_free(wexpression->arg_wexpression);
-    wvariable_free(wexpression->wvar);
+    free(wexpression->token);
     free(wexpression);
   }
 }

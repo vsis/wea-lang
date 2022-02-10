@@ -2,9 +2,20 @@
 #define WEXPRESSION_H
 
 
+// Data type
+typedef enum wtype {
+  WUNKNOWN,
+  WOPERATOR,
+  WFUNCTION,
+  WINTEGER,
+  WBOOLEAN,
+  WCHAR
+} wtype_t;
+
 // Definition of expression
 typedef struct wexpression {
-  wvariable_t *wvar;                      // Data and name of this expression
+  char *token;                            // Name or literal of this expression
+  wtype_t wtype;                          // Datatype of this expression
   struct wexpression *arg_wexpression;    // Argument of this expression
                                           // NULL if it's the last part of the expresion
   struct wexpression *nested_wexpression; // Not NULL if this expression is a nested one
@@ -21,7 +32,7 @@ typedef struct wexpression {
 
 
 // Create a new literal expression
-wexpression_t *wexpression_create(wdata_type_t wdata_type, char *symbol, void *value);
+wexpression_t *wexpression_create(wtype_t type, char *symbol);
 
 // Add an argument to an expresison
 void wexpression_append(wexpression_t *parent, wexpression_t *child);
