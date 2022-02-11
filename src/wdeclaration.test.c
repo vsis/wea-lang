@@ -139,7 +139,7 @@ Test(wdeclaration, should_free_last_scope_only) {
   wdeclaration_t *c_declaration = insert_declaration("1.c", c_expression, a_declaration);
   wdeclaration_t *d_declaration = insert_declaration("2.d", d_expression, a_declaration);
   
-  // Free unexisting scope
+  // Free last scope
   wdeclaration_free_scope("2.", a_declaration);
 
   // Check right declaration order
@@ -171,7 +171,7 @@ Test(wdeclaration, should_free_nothing_if_there_scope_is_NULL) {
   wdeclaration_t *c_declaration = insert_declaration("1.c", c_expression, a_declaration);
   wdeclaration_t *d_declaration = insert_declaration("1.d", d_expression, a_declaration);
   
-  // Free unexisting scope
+  // Free NULL scope
   wdeclaration_free_scope(NULL, a_declaration);
 
   // Everyting should be intact  

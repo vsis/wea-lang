@@ -1,16 +1,18 @@
 BINS := wexpression.o wdeclaration.o
 TEST_BINS := wexpression.test wdeclaration.test
 
+.PHONY: check clear
+
 %.test: %.o %.test.o ${BINS}
-	${CC} ${BINS} $@.o -o $@ -lcriterion
+	${CC} -g ${BINS} $@.o -o $@ -lcriterion
+	./$@ --xml=$@.xml
 
 %.o: %.c
 	${CC} -c $<
 
-ALL: ${OBJS}
+all: ${BINS}
 
-tests: ${TEST_BINS}
-	@for TEST_F in ${TEST_BINS}; do ./$$TEST_F; done
+check: ${TEST_BINS}
 
 clear:
 	rm -vrf *.o *.test
