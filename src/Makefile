@@ -15,6 +15,7 @@ all: ${BINS}
 
 check: CFLAGS = -g -fprofile-arcs -ftest-coverage
 check: ${TEST_BINS}
+	gcovr -r . --xml-pretty -o coverage.xml
 
 clear:
 	rm -vrf *.o *.test *.gcov *.xml *gcda *gcno

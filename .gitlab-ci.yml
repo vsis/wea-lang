@@ -1,0 +1,17 @@
+steps:
+  - test
+
+test:
+  stage: test
+  image:
+    name: vsis/wea-test:latest
+    entrypoint: [""]
+  script:
+    - make check
+  artifacts:
+    when: always
+    paths:
+      - src/*.xml
+    reports:
+      junit: src/*.test.xml
+      cobertura: src/coverage.xml
