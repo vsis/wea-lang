@@ -6,13 +6,13 @@ They say chileans use _wea_ for everything. So, this is a language that uses `we
 ## Run tests
 
 ```
-make tests
+make check
 ```
 
 ## Run tests with docker
 
 ```
-docker build -t wea-test -f test.dockerfile .
-docker run --rm -ti -v $(pwd)/src:/home/wea/src wea-test make tests
+docker build -t vsis/wea-test -f test.dockerfile .
+docker run --rm -ti -v $(pwd)/src:/home/wea/src vsis/wea-test
 ```
 
