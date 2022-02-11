@@ -4,15 +4,17 @@ TEST_BINS := wexpression.test wdeclaration.test
 .PHONY: check clear
 
 %.test: %.o %.test.o ${BINS}
-	${CC} -g ${BINS} $@.o -o $@ -lcriterion
+	${CC} ${CFLAGS}  ${BINS} $@.o -o $@ -lcriterion
 	./$@ --xml=$@.xml
+	gcov $<
 
 %.o: %.c
-	${CC} -c $<
+	${CC} ${CFLAGS} -c $<
 
 all: ${BINS}
 
+check: CFLAGS = -g -fprofile-arcs -ftest-coverage
 check: ${TEST_BINS}
 
 clear:
-	rm -vrf *.o *.test
+	rm -vrf *.o *.test *.gcov *.xml *gcda *gcno
