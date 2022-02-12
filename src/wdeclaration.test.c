@@ -138,6 +138,9 @@ Test(wdeclaration, should_free_last_scope_only) {
   wdeclaration_t *b_declaration = insert_declaration("1.b", b_expression, a_declaration);
   wdeclaration_t *c_declaration = insert_declaration("1.c", c_expression, a_declaration);
   wdeclaration_t *d_declaration = insert_declaration("2.d", d_expression, a_declaration);
+
+  // Check last scope
+  cr_assert(d_declaration == c_declaration->next_declaration);
   
   // Free last scope
   wdeclaration_free_scope("2.", a_declaration);

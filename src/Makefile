@@ -1,5 +1,5 @@
-BINS := wexpression.o wdeclaration.o
-TEST_BINS := wexpression.test wdeclaration.test
+BINS := wexpression.o wdeclaration.o wfunctions.o reductor.o
+TEST_BINS := wexpression.test wdeclaration.test wfunctions.test reductor.test
 
 .PHONY: check clear
 
@@ -13,7 +13,7 @@ TEST_BINS := wexpression.test wdeclaration.test
 
 all: ${BINS}
 
-check: CFLAGS = -g -fprofile-arcs -ftest-coverage
+check: CFLAGS = -Wall -g -fprofile-arcs -ftest-coverage
 check: ${TEST_BINS}
 
 clear:
