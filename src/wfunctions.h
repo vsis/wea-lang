@@ -16,8 +16,8 @@ typedef enum werror {
   WERROR_NOT_A_NUMBER
 } werror_t;
 
-// List of built-in functions
-extern wfunction_t wfunctions[];
+// Returns the definition of the function of the given token
+wfunction_t *wget_function(char *token);
 
 // Evaluate a sum
 char *weval_plus_operator_int(char *a, char *b, werror_t *error);

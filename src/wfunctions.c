@@ -14,7 +14,8 @@ wfunction_t wfunctions[] = {
   { WOPERATOR, "/", 2 },
   { WOPERATOR, "=", 2 },
   { WFUNCTION, "wea.if", 3 },
-  { WFUNCTION, "wea.echo", 1 }
+  { WFUNCTION, "wea.echo", 1 },
+  { WUNKNOWN, "null", 0}
 };
 
 long long string_to_long(char *strnum, werror_t *error) {
@@ -25,6 +26,17 @@ long long string_to_long(char *strnum, werror_t *error) {
         return 0;
     }
     return number;
+}
+
+wfunction_t *wget_function(char *token) {
+  wfunction_t *current = wfunctions;
+  while (current->wtype != WUNKNOWN) {
+    if (strcmp(current->token, token) == 0) {
+      return current;
+    }
+    current++;
+  }
+  return NULL;
 }
 
 char *weval_plus_operator_int(char *a, char *b, werror_t *error) {
