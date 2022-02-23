@@ -156,3 +156,13 @@ Test(reductor, should_not_classify_a_expression_with_not_a_function_as_delta_red
   cr_assert(error == WERROR_NOT_EXECUTABLE);
   wexpression_free(one);
 }
+
+Test(reductor, should_not_classify_a_expression_with_unknown_function_as_delta_reductible) {
+  werror_t error = WERROR;
+  wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(function, two);
+  cr_assert(! is_delta_reductible(function, &error));
+  cr_assert(error == WOK);
+  wexpression_free(function);
+}

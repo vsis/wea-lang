@@ -41,7 +41,10 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
       case WUNKNOWN:
         *error = WOK;           // ... but the use of a user-defined function or expression, that may be reduced to function, is OK
         return false;
+      case WOPERATOR:
+        return false;           // An unknown operator is an error
       default:                  // Maybe the user tries to use a literal as a function. Then, is not delta-reductible nor valid.
+        *error = WERROR_NOT_EXECUTABLE;
         return false;
     }
   }
