@@ -13,7 +13,10 @@ typedef struct wfunction {
 // Definition of weaerror
 typedef enum werror {
   WOK,
-  WERROR_NOT_A_NUMBER
+  WERROR_TOO_MANY_ARGS,
+  WERROR_NOT_A_NUMBER,
+  WERROR_NOT_EXECUTABLE,
+  WERROR
 } werror_t;
 
 // Returns the definition of the function of the given token

@@ -16,12 +16,12 @@
 
 
 // True if expression is a literal
-bool is_literal(wexpression_t *expression);
+bool is_literal(wexpression_t *expression, werror_t * error);
 
 // Determine if an expression is delta-reductible
 // delta-reductible means is reductible by applying a built-in function
 // also true if it's a literal
-bool is_delta_reductible(wexpression_t *expression);
+bool is_delta_reductible(wexpression_t *expression, werror_t *error);
 
 // True if expression is a function
 // A expression is a function if it's like wea <args> . <expression>
