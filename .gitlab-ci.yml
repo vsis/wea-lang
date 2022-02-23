@@ -14,7 +14,7 @@ test:
     when: always
     paths:
       - coverage.xml
-      - src/*.c.gcov
+      - src/*.gcov
       - src/*.xml
     reports:
       junit: src/*.test.xml
