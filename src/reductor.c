@@ -68,3 +68,34 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
   *error = WOK;
   return true;
 }
+
+bool is_function_definition(wexpression_t *expression, werror_t *error) {
+  *error = WERROR_TOO_FEW_ARGS; // if not especified before return, error is too few args
+  wexpression_t *current;
+  if (! expression) {
+    *error = WERROR;
+    return false;
+  }
+  if (strcmp(WEATOKEN, expression->token) != 0) { // if token is not "wea", it's not a function
+    *error = WOK;                                 // but it may be a valid expression
+    return false;
+  }
+  if (expression->wargc < 2) {    // expression should be at least (wea var . exp). Function with no args (wea . exp) is valid too
+    return false;                 // that is, 2 args
+  }
+  // it should contain a dot (.) and then at least one expression
+  current = expression->arg_wexpression;
+  while (current) {
+    if (strcmp(WDOTTOKEN, current->token) == 0) { // It's a dot expression
+      if (current->wargc > 0) { // and it has at least one arg left
+        *error = WOK;
+        return true;
+      } else {  // if it has no args, there is a malformed expression like (wea var .)
+        return false;
+      }
+    }
+   current = current->arg_wexpression;
+  }
+  // if here, it means there is no dot expression
+  return false;
+}

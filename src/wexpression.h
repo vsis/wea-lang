@@ -9,7 +9,9 @@ typedef enum wtype {
   WFUNCTION,
   WINTEGER,
   WBOOLEAN,
-  WCHAR
+  WCHAR,
+  WRESERVED,
+  WARGUMENT
 } wtype_t;
 
 // Definition of expression

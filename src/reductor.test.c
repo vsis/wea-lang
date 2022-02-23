@@ -166,3 +166,92 @@ Test(reductor, should_not_classify_a_expression_with_unknown_function_as_delta_r
   cr_assert(error == WOK);
   wexpression_free(function);
 }
+
+Test(reductor, should_not_classify_NULL_expression_as_a_function_definition) {
+  werror_t error = WOK;
+  cr_assert(! is_function_definition(NULL, &error));
+  cr_assert(error == WERROR);
+}
+
+Test(reductor, should_not_classify_non_function_def_as_a_function_definition) {
+  werror_t error = WERROR;
+  wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(function, two);
+  cr_assert(! is_function_definition(function, &error));
+  cr_assert(error == WOK); // expresion is valid
+  wexpression_free(function);
+}
+
+Test(reductor, should_not_classify_expresion_with_2_elements_as_a_function_definition) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *two = wexpression_create(WUNKNOWN, "foo");
+  wexpression_append(function, two);
+  cr_assert(! is_function_definition(function, &error));
+  cr_assert(error == WERROR_TOO_FEW_ARGS);
+  wexpression_free(function);
+}
+
+Test(reductor, should_not_classify_expression_with_no_expression_after_dot_as_a_function_definition) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *two = wexpression_create(WUNKNOWN, "foo");
+  wexpression_t *dot = wexpression_create(WUNKNOWN, ".");
+  wexpression_append(function, two);
+  wexpression_append(function, dot);
+  cr_assert(! is_function_definition(function, &error));
+  cr_assert(error == WERROR_TOO_FEW_ARGS);
+  wexpression_free(function);
+}
+
+Test(reductor, should_classify_a_function_definition_with_no_parameters) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *dot = wexpression_create(WUNKNOWN, ".");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(function, dot);
+  wexpression_append(function, two);
+  cr_assert(is_function_definition(function, &error));
+  cr_assert(error == WOK);
+  wexpression_free(function);
+}
+
+Test(reductor, should_classify_a_function_definition_with_parameters) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *arg1 = wexpression_create(WUNKNOWN, "arg1");
+  wexpression_t *arg2 = wexpression_create(WUNKNOWN, "arg2");
+  wexpression_t *dot = wexpression_create(WRESERVED, ".");
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WUNKNOWN, "arg1");
+  wexpression_t *one = wexpression_create(WUNKNOWN, "arg2");
+  wexpression_append(function, arg1);
+  wexpression_append(function, arg2);
+  wexpression_append(function, dot);
+  wexpression_append(function, plus);
+  wexpression_append(function, two);
+  wexpression_append(function, one);
+  cr_assert(is_function_definition(function, &error));
+  cr_assert(error == WOK);
+  wexpression_free(function);
+}
+
+Test(reductor, should_not_classify_a_expression_without_dot_as_a_function_definition) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *arg1 = wexpression_create(WUNKNOWN, "arg1");
+  wexpression_t *arg2 = wexpression_create(WUNKNOWN, "arg2");
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WUNKNOWN, "arg1");
+  wexpression_t *one = wexpression_create(WUNKNOWN, "arg2");
+  wexpression_append(function, arg1);
+  wexpression_append(function, arg2);
+  wexpression_append(function, plus);
+  wexpression_append(function, two);
+  wexpression_append(function, one);
+  cr_assert(! is_function_definition(function, &error));
+  cr_assert(error == WERROR_TOO_FEW_ARGS);
+  wexpression_free(function);
+
+}

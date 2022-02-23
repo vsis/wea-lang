@@ -27,7 +27,7 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error);
 // A expression is a function if it's like wea <args> . <expression>
 // Or an expression with variable names like @1, @2, @3, etc.
 // The first should be reduced to the former with wea-conversion()
-bool is_function(wexpression_t *expression);
+bool is_function_definition(wexpression_t *expression, werror_t *error);
 
 // True if expression is a function described by: wea <args> . <expression>
 // if True, wfunction_create may be applied

@@ -2,6 +2,8 @@
 #define WFUNCTIONS_H
 
 #define STR_SIZE 512
+#define WEATOKEN "wea"
+#define WDOTTOKEN "."
 
 // Definition of built-in functions
 typedef struct wfunction {
@@ -14,6 +16,7 @@ typedef struct wfunction {
 typedef enum werror {
   WOK,
   WERROR_TOO_MANY_ARGS,
+  WERROR_TOO_FEW_ARGS,
   WERROR_NOT_A_NUMBER,
   WERROR_NOT_EXECUTABLE,
   WERROR
