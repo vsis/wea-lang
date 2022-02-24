@@ -55,6 +55,6 @@ char *weval_plus_operator_int(char *a, char *b, werror_t *error) {
     if (!result) {
       return NULL;
     }
-    sprintf(result, "%lld" , num_a);
+    snprintf(result, STR_SIZE, "%lld" , num_a);
     return result;
 }

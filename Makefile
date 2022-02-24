@@ -1,5 +1,8 @@
 .PHONY: check clear
 
+lint:
+	$(MAKE) -C src lint
+
 check:
 	$(MAKE) -C src check
 

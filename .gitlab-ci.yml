@@ -1,11 +1,14 @@
 stages:
   - test
 
-test:
+.test:
   stage: test
   image:
     name: vsis/wea-test:latest
     entrypoint: [""]
+
+make_check:
+  extends: .test
   script:
     - make check
     - gcovr --keep --xml-pretty --exclude-unreachable-branches --print-summary -o coverage.xml --root ${CI_PROJECT_DIR}
@@ -19,3 +22,8 @@ test:
     reports:
       junit: src/*.test.xml
       cobertura: coverage.xml
+
+make_lint:
+  extends: .test
+  script:
+    - make lint

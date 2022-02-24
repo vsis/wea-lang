@@ -8,7 +8,7 @@ FROM ubuntu:21.10
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y build-essential libcriterion-dev gdb gdbserver gcovr && \
+    apt-get install -y build-essential libcriterion-dev gdb gdbserver gcovr splint splint-data && \
     useradd -m -U -s /bin/bash wea
 
 USER wea

@@ -71,28 +71,23 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
 }
 
 bool is_wea_convertible(wexpression_t *expression, werror_t *error) {
-  // Get the number of dots (.) in expression
-  // And args after last dot
-  void iterate_expression(int *number_of_dots, int *argc_after_dot) {
-    int acum = 0;
-    int args = 0;
-    wexpression_t *current = expression;
-    while (current) {
-      if (strcmp(current->token, WDOTTOKEN) == 0) {
-        acum++;
-        args = current->wargc;
-      }
-      current = current->arg_wexpression;
-    }
-    *number_of_dots = acum;
-    *argc_after_dot = args;
-  }
-  int number_of_dots, argc_after_dot;
-  iterate_expression(&number_of_dots, &argc_after_dot);
+  unsigned int number_of_dots = 0;
+  unsigned int argc_after_dot = 0;
   *error = WERROR_TOO_FEW_ARGS; // if not especified before return, error is too few args
+  wexpression_t *current;
   if (! expression) {
     *error = WERROR;
     return false;
+  }
+  // Get the number of dots (.) in expression
+  // And args after last dot
+  current = expression->arg_wexpression;
+  while (current) {
+    if (strcmp(current->token, WDOTTOKEN) == 0) {
+      number_of_dots++;
+      argc_after_dot = current->wargc;
+    }
+    current = current->arg_wexpression;
   }
   if (strcmp(WEATOKEN, expression->token) != 0) { // if token is not "wea", it's not a function
     *error = WOK;                                 // but it may be a valid expression
