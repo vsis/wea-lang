@@ -13,6 +13,10 @@ wexpression_t *wexpression_create(wtype_t type, char *symbol) {
   }
   size_t symbol_length = strlen(symbol) + 1;
   new_expression->token = (char *)malloc(sizeof(char) * symbol_length);
+  if (! new_expression->token) {
+    free(new_expression);
+    return NULL;
+  }
   strncpy(new_expression->token, symbol, symbol_length);
   new_expression->wtype = type;
   new_expression->arg_wexpression = NULL;
