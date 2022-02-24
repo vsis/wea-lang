@@ -19,6 +19,7 @@ typedef enum werror {
   WERROR_TOO_FEW_ARGS,
   WERROR_NOT_A_NUMBER,
   WERROR_NOT_EXECUTABLE,
+  WERROR_TOO_MANY_DOTS,
   WERROR
 } werror_t;
 

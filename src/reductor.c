@@ -60,7 +60,8 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
   arg = expression;
   while(arg) {
     if (arg->nested_wexpression) {
-      return false;
+      *error = WOK;
+      return false; // It is not delta-reductible if it has a nested expression
     } else {
       arg = arg->arg_wexpression;
     }
@@ -69,9 +70,26 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
   return true;
 }
 
-bool is_function_definition(wexpression_t *expression, werror_t *error) {
+bool is_wea_convertible(wexpression_t *expression, werror_t *error) {
+  // Get the number of dots (.) in expression
+  // And args after last dot
+  void iterate_expression(int *number_of_dots, int *argc_after_dot) {
+    int acum = 0;
+    int args = 0;
+    wexpression_t *current = expression;
+    while (current) {
+      if (strcmp(current->token, WDOTTOKEN) == 0) {
+        acum++;
+        args = current->wargc;
+      }
+      current = current->arg_wexpression;
+    }
+    *number_of_dots = acum;
+    *argc_after_dot = args;
+  }
+  int number_of_dots, argc_after_dot;
+  iterate_expression(&number_of_dots, &argc_after_dot);
   *error = WERROR_TOO_FEW_ARGS; // if not especified before return, error is too few args
-  wexpression_t *current;
   if (! expression) {
     *error = WERROR;
     return false;
@@ -83,19 +101,19 @@ bool is_function_definition(wexpression_t *expression, werror_t *error) {
   if (expression->wargc < 2) {    // expression should be at least (wea var . exp). Function with no args (wea . exp) is valid too
     return false;                 // that is, 2 args
   }
-  // it should contain a dot (.) and then at least one expression
-  current = expression->arg_wexpression;
-  while (current) {
-    if (strcmp(WDOTTOKEN, current->token) == 0) { // It's a dot expression
-      if (current->wargc > 0) { // and it has at least one arg left
-        *error = WOK;
-        return true;
-      } else {  // if it has no args, there is a malformed expression like (wea var .)
-        return false;
-      }
-    }
-   current = current->arg_wexpression;
+  // it should contain a single dot (.)
+  if (number_of_dots > 1) {
+    *error = WERROR_TOO_MANY_DOTS;
+    return false;
   }
-  // if here, it means there is no dot expression
-  return false;
+  if (number_of_dots < 1) {
+    return false;
+  }
+  // it should have at least a expression after dot
+  if (argc_after_dot < 1) {
+    return false;
+  }
+  // if here, it's a valid wea-reductible expression
+  *error = WOK;
+  return true;
 }

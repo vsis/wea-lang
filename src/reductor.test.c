@@ -116,7 +116,7 @@ Test(reductor, should_not_classify_a_expression_with_a_nested_one_as_delta_reduc
   wexpression_nest(parenthesis, plus2);
   // outter expression is not delta-reductible
   cr_assert(! is_delta_reductible(plus, &error1));
-  cr_assert(error1 == WERROR);
+  cr_assert(error1 == WOK);
   // inner expression is
   cr_assert(is_delta_reductible(plus2, &error2));
   cr_assert(error2 == WOK);
@@ -157,6 +157,16 @@ Test(reductor, should_not_classify_a_expression_with_not_a_function_as_delta_red
   wexpression_free(one);
 }
 
+Test(reductor, should_not_classify_a_expression_with_dot_as_delta_reductible) {
+  werror_t error = WOK;
+  wexpression_t *one = wexpression_create(WRESERVED, ".");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(one, two);
+  cr_assert(! is_delta_reductible(one, &error));
+  cr_assert(error == WERROR_NOT_EXECUTABLE);
+  wexpression_free(one);
+}
+
 Test(reductor, should_not_classify_a_expression_with_unknown_function_as_delta_reductible) {
   werror_t error = WERROR;
   wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
@@ -167,57 +177,57 @@ Test(reductor, should_not_classify_a_expression_with_unknown_function_as_delta_r
   wexpression_free(function);
 }
 
-Test(reductor, should_not_classify_NULL_expression_as_a_function_definition) {
+Test(reductor, should_not_classify_NULL_expression_as_wea_convertible) {
   werror_t error = WOK;
-  cr_assert(! is_function_definition(NULL, &error));
+  cr_assert(! is_wea_convertible(NULL, &error));
   cr_assert(error == WERROR);
 }
 
-Test(reductor, should_not_classify_non_function_def_as_a_function_definition) {
+Test(reductor, should_not_classify_non_function_def_as_wea_convertible) {
   werror_t error = WERROR;
   wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
   wexpression_t *two = wexpression_create(WINTEGER, "2");
   wexpression_append(function, two);
-  cr_assert(! is_function_definition(function, &error));
+  cr_assert(! is_wea_convertible(function, &error));
   cr_assert(error == WOK); // expresion is valid
   wexpression_free(function);
 }
 
-Test(reductor, should_not_classify_expresion_with_2_elements_as_a_function_definition) {
+Test(reductor, should_not_classify_expresion_with_2_elements_as_wea_convertible) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *two = wexpression_create(WUNKNOWN, "foo");
   wexpression_append(function, two);
-  cr_assert(! is_function_definition(function, &error));
+  cr_assert(! is_wea_convertible(function, &error));
   cr_assert(error == WERROR_TOO_FEW_ARGS);
   wexpression_free(function);
 }
 
-Test(reductor, should_not_classify_expression_with_no_expression_after_dot_as_a_function_definition) {
+Test(reductor, should_not_classify_expression_with_no_expression_after_dot_as_wea_convertible) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *two = wexpression_create(WUNKNOWN, "foo");
   wexpression_t *dot = wexpression_create(WUNKNOWN, ".");
   wexpression_append(function, two);
   wexpression_append(function, dot);
-  cr_assert(! is_function_definition(function, &error));
+  cr_assert(! is_wea_convertible(function, &error));
   cr_assert(error == WERROR_TOO_FEW_ARGS);
   wexpression_free(function);
 }
 
-Test(reductor, should_classify_a_function_definition_with_no_parameters) {
+Test(reductor, should_classify_wea_convertible_expression_with_no_parameters) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *dot = wexpression_create(WUNKNOWN, ".");
   wexpression_t *two = wexpression_create(WINTEGER, "2");
   wexpression_append(function, dot);
   wexpression_append(function, two);
-  cr_assert(is_function_definition(function, &error));
+  cr_assert(is_wea_convertible(function, &error));
   cr_assert(error == WOK);
   wexpression_free(function);
 }
 
-Test(reductor, should_classify_a_function_definition_with_parameters) {
+Test(reductor, should_classify_wea_convertible_expression_with_parameters) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *arg1 = wexpression_create(WUNKNOWN, "arg1");
@@ -232,12 +242,12 @@ Test(reductor, should_classify_a_function_definition_with_parameters) {
   wexpression_append(function, plus);
   wexpression_append(function, two);
   wexpression_append(function, one);
-  cr_assert(is_function_definition(function, &error));
+  cr_assert(is_wea_convertible(function, &error));
   cr_assert(error == WOK);
   wexpression_free(function);
 }
 
-Test(reductor, should_not_classify_a_expression_without_dot_as_a_function_definition) {
+Test(reductor, should_not_classify_a_expression_without_dot_as_wea_convertible) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *arg1 = wexpression_create(WUNKNOWN, "arg1");
@@ -250,8 +260,29 @@ Test(reductor, should_not_classify_a_expression_without_dot_as_a_function_defini
   wexpression_append(function, plus);
   wexpression_append(function, two);
   wexpression_append(function, one);
-  cr_assert(! is_function_definition(function, &error));
+  cr_assert(! is_wea_convertible(function, &error));
   cr_assert(error == WERROR_TOO_FEW_ARGS);
   wexpression_free(function);
+}
 
+Test(reductor, should_not_classify_a_expression_with_multple_dots_as_wea_convertible) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *arg = wexpression_create(WUNKNOWN, "arg");
+  wexpression_t *dot1 = wexpression_create(WRESERVED, ".");
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_t *one = wexpression_create(WUNKNOWN, "arg");
+  wexpression_t *dot2 = wexpression_create(WRESERVED, ".");
+  wexpression_t *three = wexpression_create(WUNKNOWN, "arg");
+  wexpression_append(function, arg);
+  wexpression_append(function, dot1);
+  wexpression_append(function, plus);
+  wexpression_append(function, two);
+  wexpression_append(function, one);
+  wexpression_append(function, dot2);
+  wexpression_append(function, three);
+  cr_assert(! is_wea_convertible(function, &error));
+  cr_assert(error == WERROR_TOO_MANY_DOTS);
+  wexpression_free(function);
 }

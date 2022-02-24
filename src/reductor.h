@@ -31,7 +31,7 @@ bool is_function_definition(wexpression_t *expression, werror_t *error);
 
 // True if expression is a function described by: wea <args> . <expression>
 // if True, wfunction_create may be applied
-bool is_wea_convertible(wexpression_t *expression);
+bool is_wea_convertible(wexpression_t *expression, werror_t *error);
 
 // Apply a built-in function
 void wdelta_reduction(wexpression_t *expression);
