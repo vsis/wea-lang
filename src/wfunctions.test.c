@@ -14,9 +14,16 @@ Test(wfunctions, should_add_two_integers) {
   free(five);
 }
 
-Test(wfunctions, shoud_return_error_when_sum_not_a_number) {
+Test(wfunctions, shoud_return_error_when_sum_first_arg_not_a_number) {
   werror_t error;
   char *will_be_null = weval_plus_operator_int("2", "3asd", &error);
+  cr_assert(!will_be_null);
+  cr_assert(error == WERROR_NOT_A_NUMBER);
+}
+
+Test(wfunctions, shoud_return_error_when_sum_second_arg_not_a_number) {
+  werror_t error;
+  char *will_be_null = weval_plus_operator_int("2asdf", "3", &error);
   cr_assert(!will_be_null);
   cr_assert(error == WERROR_NOT_A_NUMBER);
 }
