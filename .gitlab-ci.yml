@@ -13,9 +13,9 @@ test:
   artifacts:
     when: always
     paths:
-      - coverage.xml
-      - src/*.gcov
-      - src/*.xml
+      - 'coverage.xml'
+      - '*.gcov'
+      - 'src/*.xml'
     reports:
       junit: src/*.test.xml
       cobertura: coverage.xml
