@@ -11,13 +11,13 @@ wexpression_t *wexpression_create(wtype_t type, char *symbol) {
   if (!new_expression) {
     return NULL;
   }
-  size_t symbol_length = strlen(symbol) + 1;
-  new_expression->token = (char *)malloc(sizeof(char) * symbol_length);
+  new_expression->token = (char *)malloc(sizeof(char) * STR_SIZE);
   if (! new_expression->token) {
     free(new_expression);
     return NULL;
   }
-  strncpy(new_expression->token, symbol, symbol_length);
+  new_expression->token[STR_SIZE - 1] = '\0'; // Make string safe from the beginning
+  strncpy(new_expression->token, symbol, STR_SIZE - 1);
   new_expression->wtype = type;
   new_expression->arg_wexpression = NULL;
   new_expression->nested_wexpression = NULL;

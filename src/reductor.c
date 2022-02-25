@@ -141,3 +141,19 @@ bool is_wea_convertible(wexpression_t *expression, werror_t *error) {
   *error = WOK;
   return true;
 }
+
+void weta_convertion_parenthesis(wexpression_t *expression) {
+  if (! expression) {
+    return;
+  }
+  if (expression->nested_wexpression) {
+    weta_convertion_parenthesis(expression->nested_wexpression);
+    if (expression->nested_wexpression->wargc == 0) { // Inner expression is only one token
+      strncpy(expression->token, expression->nested_wexpression->token, STR_SIZE - 1);
+      expression->wtype = expression->nested_wexpression->wtype;
+      wexpression_free(expression->nested_wexpression);
+      expression->nested_wexpression = NULL;
+    }
+  }
+  weta_convertion_parenthesis(expression->arg_wexpression);
+}

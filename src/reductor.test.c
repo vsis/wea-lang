@@ -372,3 +372,172 @@ Test(reductor, should_classify_a_function_definition_with_two_args_in_nested_exp
   cr_assert(error == WOK);
   wexpression_free(plus);
 }
+
+Test(reductor, should_not_try_to_eta_convert_parenthesis_a_NULL_expression) {
+  weta_convertion_parenthesis(NULL);
+}
+
+Test(reductor, should_not_modify_a_expression_not_eta_convertiblei_parenthesis) {
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WARGUMENT, "2");
+  wexpression_append(plus, one);
+  wexpression_append(plus, two);
+  weta_convertion_parenthesis(plus);
+  cr_assert_str_eq(plus->token, "+");
+  cr_assert_str_eq(one->token, "1");
+  cr_assert_str_eq(two->token, "2");
+  cr_assert(plus->wtype == WOPERATOR);
+  cr_assert(one->wtype == WINTEGER);
+  cr_assert(two->wtype == WARGUMENT);
+  cr_assert(plus->wargc == 2);
+  cr_assert(one->wargc == 1);
+  cr_assert(two->wargc == 0);
+  wexpression_free(plus);
+}
+
+Test(reductor, should_eta_convert_parenthesis_a_single_element_in_parenthesis) {
+  wexpression_t *outter = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *inner = wexpression_create(WINTEGER, "1");
+  wexpression_nest(outter, inner);
+  weta_convertion_parenthesis(outter);
+  cr_assert_str_eq(outter->token, "1");
+  cr_assert(outter->wtype == WINTEGER);
+  cr_assert(outter->wargc == 0);
+  cr_assert(outter->nested_wexpression == NULL);
+  wexpression_free(outter);
+}
+
+Test(reductor, should_eta_convert_parenthesis_with_5_levels_of_nest) {
+  wexpression_t *outter1 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter2 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter3 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter4 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *inner = wexpression_create(WINTEGER, "1");
+  wexpression_nest(outter1, outter2);
+  wexpression_nest(outter2, outter3);
+  wexpression_nest(outter3, outter4);
+  wexpression_nest(outter4, inner);
+  // ((((1))))
+  weta_convertion_parenthesis(outter1);
+  // 1
+  cr_assert_str_eq(outter1->token, "1");
+  cr_assert(outter1->wtype == WINTEGER);
+  cr_assert(outter1->wargc == 0);
+  cr_assert(outter1->nested_wexpression == NULL);
+  wexpression_free(outter1);
+}
+
+Test(reductor, should_eta_convert_parenthesis_with_args_and_5_levels_of_nest) {
+  wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
+  wexpression_t *arg1 = wexpression_create(WINTEGER, "1");
+  wexpression_t *outter1 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter2 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter3 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter4 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *inner = wexpression_create(WINTEGER, "2");
+  wexpression_t *arg2 = wexpression_create(WINTEGER, "3");
+  wexpression_append(function, arg1);
+  wexpression_append(function, outter1);
+  wexpression_append(function,arg2);
+  wexpression_nest(outter1, outter2);
+  wexpression_nest(outter2, outter3);
+  wexpression_nest(outter3, outter4);
+  wexpression_nest(outter4, inner);
+  // my_function 1 ((((1)))) 3
+  weta_convertion_parenthesis(outter1);
+  // my_function 1 2 3
+  cr_assert_str_eq(function->token, "my_function");
+  cr_assert(function->wargc == 3);
+  cr_assert(function->wtype == WFUNCTION);
+  cr_assert_str_eq(arg1->token, "1");
+  cr_assert(arg1->wargc == 2);
+  cr_assert(arg1->wtype == WINTEGER);
+  cr_assert_str_eq(outter1->token, "2");
+  cr_assert(outter1->wtype == WINTEGER);
+  cr_assert(outter1->wargc == 1);
+  cr_assert(outter1->nested_wexpression == NULL);
+  cr_assert_str_eq(arg2->token, "3");
+  cr_assert(arg2->wargc == 0);
+  cr_assert(arg2->wtype == WINTEGER);
+  wexpression_free(function);
+}
+
+Test(reductor, should_eta_convert_parenthesis_with_args_and_5_levels_of_nest_two_times) {
+  wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
+  wexpression_t *arg1 = wexpression_create(WINTEGER, "1");
+  wexpression_t *outter1 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter2 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter3 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *outter4 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *inner = wexpression_create(WINTEGER, "2");
+  wexpression_t *arg2 = wexpression_create(WINTEGER, "3");
+  wexpression_t *b_outter1 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *b_outter2 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *b_outter3 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *b_outter4 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *b_inner = wexpression_create(WINTEGER, "4");
+  wexpression_append(function, arg1);
+  wexpression_append(function, outter1);
+  wexpression_append(function,arg2);
+  wexpression_append(function, b_outter1);
+  wexpression_nest(outter1, outter2);
+  wexpression_nest(outter2, outter3);
+  wexpression_nest(outter3, outter4);
+  wexpression_nest(outter4, inner);
+  wexpression_nest(b_outter1, b_outter2);
+  wexpression_nest(b_outter2, b_outter3);
+  wexpression_nest(b_outter3, b_outter4);
+  wexpression_nest(b_outter4, b_inner);
+  // my_function 1 ((((1)))) 3 ((((4))))
+  weta_convertion_parenthesis(outter1);
+  // my_function 1 2 3 4
+  cr_assert_str_eq(function->token, "my_function");
+  cr_assert(function->wargc == 4);
+  cr_assert(function->wtype == WFUNCTION);
+  cr_assert_str_eq(arg1->token, "1");
+  cr_assert(arg1->wargc == 3);
+  cr_assert(arg1->wtype == WINTEGER);
+  cr_assert_str_eq(outter1->token, "2");
+  cr_assert(outter1->wtype == WINTEGER);
+  cr_assert(outter1->wargc == 2);
+  cr_assert(outter1->nested_wexpression == NULL);
+  cr_assert_str_eq(arg2->token, "3");
+  cr_assert(arg2->wargc == 1);
+  cr_assert(arg2->wtype == WINTEGER);
+  cr_assert_str_eq(b_outter1->token, "4");
+  cr_assert(b_outter1->wtype == WINTEGER);
+  cr_assert(b_outter1->wargc == 0);
+  cr_assert(b_outter1->nested_wexpression == NULL);
+  wexpression_free(function);
+}
+
+Test(reductor, should_eta_convert_parenthesis_a_nested_expression_with_eta_convertible_parenthesis_expression) {
+  wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
+  wexpression_t *arg1 = wexpression_create(WINTEGER, "1");
+  wexpression_t *parenthesis1 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *arg2 = wexpression_create(WINTEGER, "2");
+  wexpression_t *parenthesis2 = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *arg3 = wexpression_create(WINTEGER, "3");
+  wexpression_append(function, arg1);
+  wexpression_append(function, parenthesis1);
+  wexpression_append(arg2, parenthesis2);
+  wexpression_nest(parenthesis1, arg2);
+  wexpression_nest(parenthesis2, arg3);
+  // my_function 1 (2 (3))
+  weta_convertion_parenthesis(function);
+  // my_function 1 (2 3)
+  cr_assert_str_eq(function->token, "my_function");
+  cr_assert_str_eq(function->arg_wexpression->token, "1");
+  cr_assert_str_eq(function->arg_wexpression->arg_wexpression->token, "(");
+  cr_assert_str_eq(function->arg_wexpression->arg_wexpression->nested_wexpression->token, "2");
+  cr_assert_str_eq(function->arg_wexpression->arg_wexpression->nested_wexpression->arg_wexpression->token, "3");
+  // execute again. No change expected
+  weta_convertion_parenthesis(function);
+  cr_assert_str_eq(function->token, "my_function");
+  cr_assert_str_eq(function->arg_wexpression->token, "1");
+  cr_assert_str_eq(function->arg_wexpression->arg_wexpression->token, "(");
+  cr_assert_str_eq(function->arg_wexpression->arg_wexpression->nested_wexpression->token, "2");
+  cr_assert_str_eq(function->arg_wexpression->arg_wexpression->nested_wexpression->arg_wexpression->token, "3");
+  wexpression_free(function);
+}

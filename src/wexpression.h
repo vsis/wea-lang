@@ -1,6 +1,7 @@
 #ifndef WEXPRESSION_H
 #define WEXPRESSION_H
 
+#define STR_SIZE 512
 
 // Data type
 typedef enum wtype {

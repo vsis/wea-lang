@@ -1,6 +1,6 @@
 BINS := wexpression.o wdeclaration.o wfunctions.o reductor.o
 TEST_BINS := wexpression.test wdeclaration.test wfunctions.test reductor.test
-SPLINT_FLAGS := -memimp -nullret -mustfree -temptrans -branchstate -kepttrans -boolops -globstate -exportlocal
+SPLINT_FLAGS := -memimp -nullret -mustfree -temptrans -branchstate -kepttrans -boolops -globstate -exportlocal -nullstate -compmempass
 
 .PHONY: check clear lint
 
@@ -12,9 +12,10 @@ SPLINT_FLAGS := -memimp -nullret -mustfree -temptrans -branchstate -kepttrans -b
 %.o: %.c
 	${CC} ${CFLAGS} -c $<
 
+all: CFLAGS = -Wall -Werror -O2
 all: ${BINS}
 
-check: CFLAGS = -Wall -g -fprofile-arcs -ftest-coverage
+check: CFLAGS = -Wall -Werror -g -fprofile-arcs -ftest-coverage
 check: ${TEST_BINS}
 	rm -vrf *test.gcda *test.gcno
 

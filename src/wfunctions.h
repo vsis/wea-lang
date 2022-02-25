@@ -1,7 +1,6 @@
 #ifndef WFUNCTIONS_H
 #define WFUNCTIONS_H
 
-#define STR_SIZE 512
 #define WEATOKEN "wea"
 #define WDOTTOKEN "."
 
