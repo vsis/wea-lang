@@ -70,6 +70,35 @@ bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
   return true;
 }
 
+bool is_function_definition(wexpression_t *expression, werror_t *error) {
+  int argc = 0;
+  bool nested_expression_is_function = false;
+  wexpression_t *current = expression;
+  *error = WERROR;
+  if (! expression) {
+    return false;
+  }
+  // Check there is no WEA or dot (.) expression in args
+  current = current->arg_wexpression;
+  while (current) {
+    if (current->wtype == WRESERVED) {
+      return false;
+    }
+    if (current->wtype == WARGUMENT) {
+      argc++;
+    }
+    // Check if nested expression is a function too
+    if (is_function_definition(current->nested_wexpression, error)) {
+      nested_expression_is_function = true;
+    }
+    current = current->arg_wexpression;
+  }
+  // At this point, expression is valid. But we do not know if nested expression are.
+  // This expression is function if it has WARGUMENT elements or a nested espression is function
+  *error = WOK;
+  return (nested_expression_is_function || (argc > 0));
+}
+
 bool is_wea_convertible(wexpression_t *expression, werror_t *error) {
   unsigned int number_of_dots = 0;
   unsigned int argc_after_dot = 0;

@@ -97,7 +97,7 @@ Test(reductor, should_not_classify_a_nonexisting_operator_as_delta_reductible) {
   wexpression_free(plus);
 }
 
-Test(reductor, should_not_classify_a_expression_with_a_nested_one_as_delta_reductible) {
+Test(reductor, should_not_classify_an_expression_with_a_nested_one_as_delta_reductible) {
   werror_t error1 = WOK;
   werror_t error2 = WERROR;
   wexpression_t *plus = wexpression_create(WOPERATOR, "+");
@@ -123,7 +123,7 @@ Test(reductor, should_not_classify_a_expression_with_a_nested_one_as_delta_reduc
   wexpression_free(plus);
 }
 
-Test(reductor, should_not_classify_a_expression_with_wrong_number_of_arguments_as_delta_reductible) {
+Test(reductor, should_not_classify_an_expression_with_wrong_number_of_arguments_as_delta_reductible) {
   werror_t error = WOK;
   wexpression_t *plus = wexpression_create(WOPERATOR, "+");
   wexpression_t *one = wexpression_create(WINTEGER, "1");
@@ -137,7 +137,7 @@ Test(reductor, should_not_classify_a_expression_with_wrong_number_of_arguments_a
   wexpression_free(plus);
 }
 
-Test(reductor, should_correctly_classify_a_expression_with_operator_and_too_few_args) {
+Test(reductor, should_correctly_classify_an_expression_with_operator_and_too_few_args) {
   werror_t error = WERROR;
   wexpression_t *plus = wexpression_create(WOPERATOR, "+");
   wexpression_t *one = wexpression_create(WINTEGER, "1");
@@ -147,7 +147,7 @@ Test(reductor, should_correctly_classify_a_expression_with_operator_and_too_few_
   wexpression_free(plus);
 }
 
-Test(reductor, should_not_classify_a_expression_with_not_a_function_as_delta_reductible) {
+Test(reductor, should_not_classify_an_expression_with_not_a_function_as_delta_reductible) {
   werror_t error = WOK;
   wexpression_t *one = wexpression_create(WINTEGER, "1");
   wexpression_t *two = wexpression_create(WINTEGER, "2");
@@ -157,7 +157,7 @@ Test(reductor, should_not_classify_a_expression_with_not_a_function_as_delta_red
   wexpression_free(one);
 }
 
-Test(reductor, should_not_classify_a_expression_with_dot_as_delta_reductible) {
+Test(reductor, should_not_classify_an_expression_with_dot_as_delta_reductible) {
   werror_t error = WOK;
   wexpression_t *one = wexpression_create(WRESERVED, ".");
   wexpression_t *two = wexpression_create(WINTEGER, "2");
@@ -167,7 +167,7 @@ Test(reductor, should_not_classify_a_expression_with_dot_as_delta_reductible) {
   wexpression_free(one);
 }
 
-Test(reductor, should_not_classify_a_expression_with_unknown_function_as_delta_reductible) {
+Test(reductor, should_not_classify_an_expression_with_unknown_function_as_delta_reductible) {
   werror_t error = WERROR;
   wexpression_t *function = wexpression_create(WFUNCTION, "my_function");
   wexpression_t *two = wexpression_create(WINTEGER, "2");
@@ -247,7 +247,7 @@ Test(reductor, should_classify_wea_convertible_expression_with_parameters) {
   wexpression_free(function);
 }
 
-Test(reductor, should_not_classify_a_expression_without_dot_as_wea_convertible) {
+Test(reductor, should_not_classify_an_expression_without_dot_as_wea_convertible) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *arg1 = wexpression_create(WUNKNOWN, "arg1");
@@ -265,7 +265,7 @@ Test(reductor, should_not_classify_a_expression_without_dot_as_wea_convertible) 
   wexpression_free(function);
 }
 
-Test(reductor, should_not_classify_a_expression_with_multple_dots_as_wea_convertible) {
+Test(reductor, should_not_classify_an_expression_with_multple_dots_as_wea_convertible) {
   werror_t error = WOK;
   wexpression_t *function = wexpression_create(WRESERVED, "wea");
   wexpression_t *arg = wexpression_create(WUNKNOWN, "arg");
@@ -285,4 +285,90 @@ Test(reductor, should_not_classify_a_expression_with_multple_dots_as_wea_convert
   cr_assert(! is_wea_convertible(function, &error));
   cr_assert(error == WERROR_TOO_MANY_DOTS);
   wexpression_free(function);
+}
+
+Test(reductor, should_not_classify_a_NULL_expression_as_a_function_definition) {
+  werror_t error = WOK;
+  cr_assert(! is_function_definition(NULL, &error));
+  cr_assert(error == WERROR);
+}
+
+Test(reductor, should_not_classify_an_expression_with_reserved_tokens_as_a_function_definition) {
+  werror_t error = WOK;
+  wexpression_t *function = wexpression_create(WRESERVED, "wea");
+  wexpression_t *arg = wexpression_create(WUNKNOWN, "arg");
+  wexpression_t *dot1 = wexpression_create(WRESERVED, ".");
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_t *one = wexpression_create(WUNKNOWN, "arg");
+  wexpression_t *dot2 = wexpression_create(WRESERVED, ".");
+  wexpression_t *three = wexpression_create(WUNKNOWN, "arg");
+  wexpression_append(function, arg);
+  wexpression_append(function, dot1);
+  wexpression_append(function, plus);
+  wexpression_append(function, two);
+  wexpression_append(function, one);
+  wexpression_append(function, dot2);
+  wexpression_append(function, three);
+  cr_assert(! is_function_definition(function, &error));
+  cr_assert(error == WERROR);
+  wexpression_free(function);
+}
+
+Test(reductor, should_not_classify_a_valid_expression_with_no_arguments_as_a_function_definition) {
+  werror_t error = WERROR;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(plus, one);
+  wexpression_append(plus, two);
+  cr_assert(! is_function_definition(plus, &error));
+  cr_assert(error == WOK);
+  wexpression_free(plus);
+}
+
+Test(reductor, should_classify_a_function_definition_with_one_arg) {
+  werror_t error = WERROR;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WARGUMENT, "2");
+  wexpression_append(plus, one);
+  wexpression_append(plus, two);
+  cr_assert(is_function_definition(plus, &error));
+  cr_assert(error == WOK);
+  wexpression_free(plus);
+}
+
+Test(reductor, should_classify_a_function_definition_with_one_arg_in_nested_expression) {
+  werror_t error = WERROR;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *parenthesis = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *plus2 = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WARGUMENT, "2");
+  wexpression_append(plus, one);
+  wexpression_append(plus, parenthesis);
+  wexpression_append(plus2, two);
+  wexpression_nest(parenthesis, plus2);
+  cr_assert(is_function_definition(plus, &error));
+  cr_assert(error == WOK);
+  wexpression_free(plus);
+}
+
+Test(reductor, should_classify_a_function_definition_with_two_args_in_nested_expression) {
+  werror_t error = WERROR;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *parenthesis = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *plus2 = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WARGUMENT, "2");
+  wexpression_t *three = wexpression_create(WARGUMENT, "3");
+  wexpression_append(plus, one);
+  wexpression_append(plus, parenthesis);
+  wexpression_append(plus2, two);
+  wexpression_append(plus2, three);
+  wexpression_nest(parenthesis, plus2);
+  cr_assert(is_function_definition(plus, &error));
+  cr_assert(error == WOK);
+  wexpression_free(plus);
 }
