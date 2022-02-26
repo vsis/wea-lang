@@ -19,13 +19,20 @@ typedef enum werror {
   WERROR_NOT_A_NUMBER,
   WERROR_NOT_EXECUTABLE,
   WERROR_TOO_MANY_DOTS,
+  WERROR_DIVISION_BY_ZERO,
   WERROR
 } werror_t;
 
 // Returns the definition of the function of the given token
 wfunction_t *wget_function(char *token);
 
+// Transform a token into a number (long long)
+long long wtoken_to_long(char *token, werror_t *error);
+
+// Given an operation with different data types, return the datatype that must be used
+wtype_t wget_operation_wtype(wtype_t a, wtype_t b);
+
 // Evaluate a sum
-char *weval_plus_operator_int(char *a, char *b, werror_t *error);
+char *weval_operator_int(char *operator, char *a, char *b, werror_t *error);
 
 #endif

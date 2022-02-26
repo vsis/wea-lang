@@ -177,6 +177,14 @@ Test(reductor, should_not_classify_an_expression_with_unknown_function_as_delta_
   wexpression_free(function);
 }
 
+Test(reductor, should_not_classify_a_literal_as_delta_reductible) {
+  werror_t error = WERROR;
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  cr_assert(! is_delta_reductible(two, &error));
+  cr_assert(error == WOK);
+  wexpression_free(two);
+}
+
 Test(reductor, should_not_classify_NULL_expression_as_wea_convertible) {
   werror_t error = WOK;
   cr_assert(! is_wea_convertible(NULL, &error));
@@ -540,4 +548,139 @@ Test(reductor, should_eta_convert_parenthesis_a_nested_expression_with_eta_conve
   cr_assert_str_eq(function->arg_wexpression->arg_wexpression->nested_wexpression->token, "2");
   cr_assert_str_eq(function->arg_wexpression->arg_wexpression->nested_wexpression->arg_wexpression->token, "3");
   wexpression_free(function);
+}
+
+Test(reductor, should_not_delta_reduce_a_NULL_expression) {
+  werror_t error = WERROR;
+  wdelta_reduction(NULL, &error);
+  cr_assert(error == WOK);
+}
+
+Test(reductor, should_delta_reduce_a_simple_sum) {
+  werror_t error = WERROR;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(plus, one);
+  wexpression_append(plus, two);
+  // + 1 2
+  wdelta_reduction(plus, &error);
+  // 3
+  cr_assert(error == WOK);
+  cr_assert_str_eq(plus->token, "3");
+  cr_assert(plus->wtype == WINTEGER);
+  cr_assert(plus->wargc == 0);
+  cr_assert(! plus->arg_wexpression);
+  // try to delta-reduce it again. Expect the same expression
+  wdelta_reduction(plus, &error);
+  cr_assert(error == WOK);
+  cr_assert_str_eq(plus->token, "3");
+  cr_assert(plus->wtype == WINTEGER);
+  cr_assert(plus->wargc == 0);
+  cr_assert(! plus->arg_wexpression);
+  wexpression_free(plus);
+}
+
+Test(reductor, should_delta_reduce_a_simple_substraction) {
+  werror_t error = WERROR;
+  wexpression_t *minus = wexpression_create(WOPERATOR, "-");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_append(minus, one);
+  wexpression_append(minus, two);
+  // + 1 2
+  wdelta_reduction(minus, &error);
+  // 3
+  cr_assert(error == WOK);
+  cr_assert_str_eq(minus->token, "-1");
+  cr_assert(minus->wtype == WINTEGER);
+  cr_assert(minus->wargc == 0);
+  cr_assert(! minus->arg_wexpression);
+  wexpression_free(minus);
+}
+
+Test(reductor, should_not_delta_reduce_a_expression_with_too_many_args) {
+  werror_t error = WOK;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_t *three = wexpression_create(WINTEGER, "23");
+  wexpression_append(plus, one);
+  wexpression_append(plus, two);
+  wexpression_append(plus, three);
+  wdelta_reduction(plus, &error);
+  cr_assert(error == WERROR_TOO_MANY_ARGS);
+  wexpression_free(plus);
+}
+
+Test(reductor, should_delta_reduce_a_nested_expression) {
+  werror_t error = WERROR;
+  wexpression_t *plus1 = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *parenthesis = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *plus2 = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_t *three = wexpression_create(WINTEGER, "3");
+  wexpression_append(plus1, one);
+  wexpression_append(plus1, parenthesis);
+  wexpression_nest(parenthesis, plus2);
+  wexpression_append(plus2, two);
+  wexpression_append(plus2, three);
+  // + 1 (+ 2 3)
+  wdelta_reduction(plus1, &error);
+  // + 1 (5)
+  cr_assert_str_eq(plus2->token, "5");
+  cr_assert(plus2->wtype == WINTEGER);
+  cr_assert(plus2->wargc == 0);
+  cr_assert(parenthesis->nested_wexpression == plus2);
+  cr_assert(error == WOK);
+  // + 1 (5)
+  weta_convertion_parenthesis(plus1);
+  // + 1 5
+  cr_assert_str_eq(plus1->arg_wexpression->arg_wexpression->token, "5");
+  cr_assert(plus1->arg_wexpression->arg_wexpression->wtype == WINTEGER);
+  cr_assert(plus1->arg_wexpression->arg_wexpression->wargc == 0);
+  cr_assert(plus1->wargc == 2);
+  cr_assert(error == WOK);
+  // + 1 5
+  wdelta_reduction(plus1, &error);
+  // 6
+  cr_assert_str_eq(plus1->token, "6");
+  cr_assert(plus1->wtype == WINTEGER);
+  cr_assert(plus1->wargc == 0);
+  cr_assert(error == WOK);
+  wexpression_free(plus1);
+}
+
+Test(reductor, should_not_delta_reduce_a_nested_expression_with_too_many_args) {
+  werror_t error = WERROR;
+  wexpression_t *plus1 = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *parenthesis = wexpression_create(WUNKNOWN, "(");
+  wexpression_t *plus2 = wexpression_create(WOPERATOR, "+");
+  wexpression_t *two = wexpression_create(WINTEGER, "2");
+  wexpression_t *three = wexpression_create(WINTEGER, "3");
+  wexpression_t *four = wexpression_create(WINTEGER, "4");
+  wexpression_append(plus1, one);
+  wexpression_append(plus1, parenthesis);
+  wexpression_nest(parenthesis, plus2);
+  wexpression_append(plus2, two);
+  wexpression_append(plus2, three);
+  wexpression_append(plus2, four);
+  // + 1 (+ 2 3 4)
+  wdelta_reduction(plus1, &error);
+  cr_assert(error == WERROR_TOO_MANY_ARGS);
+  wexpression_free(plus1);
+}
+
+Test(reductor, should_not_delta_reduce_if_NOT_A_NUMBER_error_happens) {
+  werror_t error = WERROR;
+  wexpression_t *plus = wexpression_create(WOPERATOR, "+");
+  wexpression_t *one = wexpression_create(WINTEGER, "1");
+  wexpression_t *two = wexpression_create(WINTEGER, "2aaa");
+  wexpression_append(plus, one);
+  wexpression_append(plus, two);
+  wdelta_reduction(plus, &error);
+  cr_assert(error == WERROR_NOT_A_NUMBER);
+  wexpression_free(plus);
 }

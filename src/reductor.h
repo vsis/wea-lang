@@ -34,7 +34,7 @@ bool is_function_definition(wexpression_t *expression, werror_t *error);
 bool is_wea_convertible(wexpression_t *expression, werror_t *error);
 
 // Apply a built-in function
-void wdelta_reduction(wexpression_t *expression);
+void wdelta_reduction(wexpression_t *expression, werror_t *error);
 
 // Rename free variables of an expression
 // Creating function scopes to avoid variable name collision

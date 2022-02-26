@@ -30,10 +30,18 @@ bool is_literal(wexpression_t *expression, werror_t *error) {
 bool is_delta_reductible(wexpression_t *expression, werror_t *error) {
   wfunction_t *function;
   wexpression_t *arg;
-  *error = WERROR;
+  bool expression_is_literal = false;
+  *error = WERROR; // if error is not especified when this returns, it's WERROR
   if (!expression) {
     return false;
   }
+  // if expression is literal, return false
+  expression_is_literal = is_literal(expression, error);
+  if ((expression_is_literal) || (*error != WOK)) {
+    return false;
+  }
+  *error = WERROR; // again, default error is WERROR
+  // if not a literal, keep looking
   function = wget_function(expression->token);
   if (!function) {               // The token is not the name of an operator or in-built function
     switch (expression->wtype) { // Therefore, expression is not delta-reductible...
@@ -156,4 +164,60 @@ void weta_convertion_parenthesis(wexpression_t *expression) {
     }
   }
   weta_convertion_parenthesis(expression->arg_wexpression);
+}
+
+
+void wdelta_reduction(wexpression_t *expression, werror_t *error) {
+  *error = WOK; // if no error is especified, there is no error
+  wtype_t result_type = WUNKNOWN;
+  wexpression_t *current = NULL;
+  char *new_token = NULL;
+  bool expression_is_delta_reductible = false;
+  if (! expression) {
+    return;
+  }
+  expression_is_delta_reductible = is_delta_reductible(expression, error);
+  if (*error != WOK) { // if there is an error, transmit it
+    return;
+  }
+  if (expression_is_delta_reductible) {
+    if ((expression->wargc == 2) && (expression->wtype == WOPERATOR)) { // operator with 2 args
+      result_type = wget_operation_wtype(expression->arg_wexpression->wtype, expression->arg_wexpression->arg_wexpression->wtype);
+      switch (result_type) {
+        case WINTEGER:
+          new_token = weval_operator_int(expression->token, expression->arg_wexpression->token, expression->arg_wexpression->arg_wexpression->token, error);
+          break;
+        default:
+          *error = WERROR;
+          return;
+      }
+    } else { // expression is delta-reductible, but reduction is not implemented yet
+      *error = WERROR;
+      return;
+    }
+    // if evaluation gave error or there is no new token, return error.
+    if (*error != WOK) {
+      return;
+    } else if (! new_token) {
+      *error = WERROR;
+      return;
+    }
+    // Replace expression with delta-reduction
+    free(expression->token);
+    expression->token = new_token;
+    expression->wtype = result_type;
+    wexpression_free(expression->arg_wexpression);
+    expression->arg_wexpression = NULL;
+    expression->wargc = 0;
+  } else { // If expression is not delta-reductible, search in nested expressions
+    current = expression->arg_wexpression;
+    while (current) {
+      wdelta_reduction(current->nested_wexpression, error);
+      // if an error is found, return it
+      if (*error != WOK) {
+        return;
+      }
+      current = current->arg_wexpression;
+    }
+  }
 }
